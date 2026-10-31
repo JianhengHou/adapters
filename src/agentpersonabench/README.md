@@ -71,7 +71,7 @@ Harbor Registry & Datasets makes running adapter evaluation easy and flexible.
 
 ### Running with Datasets Registry
 
-The dataset is not registered yet. Until the `harbor-datasets` PR is merged, run against a local directory.
+The dataset PR is open ([harbor-datasets#270](https://github.com/harbor-framework/harbor-datasets/pull/270)) and is not in the registry yet. Until it is merged and published, run against a local directory.
 
 ```bash
 # Oracle check on one generated task
@@ -213,7 +213,7 @@ The Harbor oracle's latest trial is fully held on all 2,301 emitted tasks, with 
 
 An earlier one-task chat probe used `glm-4.7`. APB's vaccines transcript in that probe ends with an `[Ended: satisfied — ...]` turn, and Harbor's last turn is a normal goodbye. For DeepSeek, the Harbor chat bot uses a completion budget of 8192 because a 1024 budget returns empty `content` after `reasoning_content`. APB's bot budget stays 1024. The parity table above is the `claude-haiku-5-5` subset, not that probe.
 
-The generated dataset lives in `datasets/agentpersonabench`, which is gitignored. The adapter PR contains the adapter. Publishing the tasks is a separate PR to `harbor-datasets`.
+The generated dataset lives in `datasets/agentpersonabench`, which is gitignored. The adapter PR contains the adapter. The tasks are in [harbor-datasets#270](https://github.com/harbor-framework/harbor-datasets/pull/270). Parity artifacts are in [parity-experiments discussion 274](https://huggingface.co/datasets/harborframework/parity-experiments/discussions/274).
 
 ## Installation / Prerequisites
 

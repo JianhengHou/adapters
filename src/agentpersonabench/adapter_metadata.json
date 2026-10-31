@@ -42,7 +42,7 @@
           "None"
         ],
         "parity_costs": "unmetered",
-        "notes": "Registry count is the adapted set. The harbor-datasets PR is not opened. Parity is 115 tasks (survey 25, chat 28, web 32, os-app 30), drawn with random.Random(42) from emitted tasks and listed in parity_task_ids.json. Each entry in parity_experiment.json is one surface. Upstream db1b8b493009811314421e7a1775c947762dc3b7. Harbor 0.18.0. Survey, chat, and web use claude-haiku-5-5. Os-app uses claude-opus-4-8. Effort medium. Three runs per side. Run ranges overlap on every surface. task.toml still pins claude-opus-4-8 for the judge."
+        "notes": "Registry count is the adapted set. Dataset PR: https://github.com/harbor-framework/harbor-datasets/pull/270. Parity is 115 tasks (survey 25, chat 28, web 32, os-app 30), drawn with random.Random(42) from emitted tasks and listed in parity_task_ids.json. Each entry in parity_experiment.json is one surface. Upstream db1b8b493009811314421e7a1775c947762dc3b7. Harbor 0.18.0. Survey, chat, and web use claude-haiku-5-5. Os-app uses claude-opus-4-8. Effort medium. Three runs per side. Run ranges overlap on every surface. task.toml still pins claude-opus-4-8 for the judge."
       }
     ]
   }
