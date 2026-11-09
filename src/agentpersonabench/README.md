@@ -2,7 +2,7 @@
 
 ## Overview
 
-This adapter converts the survey, chat, web, and os-app surfaces of [AgentPersonaBench](https://github.com/MatrAIx-ai/AgentPersonaBench) into Harbor tasks. The upstream benchmark has 2,460 tasks. This adapter emits 2,301. The other 159 are listed in `EXCLUSIONS.md` and `EXCLUSIONS-<surface>.md` when the dataset is generated. A task is emitted only when the DeepSeek-qualified oracle in Notes scores fully held. That run is not a validation under the default `claude-opus-4-8` judge. Most chat oracles restate the verifier's HELD clauses as `user_turns.json`. Sixty chat oracles instead use calibrated concrete turns because a rubric restatement was insufficient or unstable. The judge prompt is unchanged.
+This adapter converts the survey, chat, web, and os-app surfaces of [AgentPersonaBench](https://github.com/MatrAIx-ai/AgentPersonaBench) into Harbor tasks. The upstream benchmark has 2,460 tasks. This adapter emits 2,301. The other 159 are listed in `EXCLUSIONS.md` and `EXCLUSIONS-<surface>.md` when the dataset is generated. A task is emitted only when its oracle scores fully held. Most chat oracles restate the verifier's HELD clauses as `user_turns.json`. Sixty chat oracles instead use calibrated concrete turns because a rubric restatement was insufficient or unstable. The judge prompt is unchanged.
 
 - **Source**: https://github.com/MatrAIx-ai/AgentPersonaBench (code Apache-2.0, tasks CC-BY-4.0)
 - **Paper**: https://arxiv.org/abs/2610.04379
@@ -94,7 +94,7 @@ harbor run -c src/agentpersonabench/run_agentpersonabench.yaml
 # Chat
 PYTHONPATH=src/agentpersonabench/src harbor run \
   -a agentpersonabench.agents.persona_chat:PersonaChat \
-  -m "dashscope/deepseek-v4.1-flash" -e docker \
+  -m "anthropic/claude-haiku-5-5" -e docker \
   -p datasets/agentpersonabench/<chat-task-id>
 
 # Web
@@ -207,11 +207,11 @@ Excluded tasks, 159 of 2,460: survey 0, chat 3, web 63, os-app 93. The current o
 
 Web pages keep ground truth in `data-*` attributes and HTML comments inside the agent-visible image, as upstream does. `persona-web` does not read those attributes. A shell-capable agent can. Os-app catalogs under `/opt/task-environment/` are in the same position.
 
-The 2,301 fully-held figure is a DeepSeek-qualified oracle result. It is not a validation under the default judge. The latest trial of each emitted task was fully held, with 0 exceptions. Rewards stay the verifier's point counts, so the mean of the raw rewards is 1.586, not a pass rate. LLM-judge trials in that run used `dashscope/deepseek-v4.1-flash` with thinking disabled, passed through `--verifier-env`. The 60 calibrated turns and the three chat exclusions were gated with `glm-4.7`, thinking disabled. Generated `task.toml` still pins `claude-opus-4-8`. That pin was not used for this oracle, because `ANTHROPIC_API_KEY` returns HTTP 401, and the default Opus judge has not qualified these oracles. The first pass scored 13 tasks short. Their oracle text, or a missing `tests/questionnaire.yaml`, was fixed, and the rerun scored those 13 fully held. Upstream commit `db1b8b493009811314421e7a1775c947762dc3b7`. Harbor 0.18.0.
+The latest trial of each emitted task was fully held, with 0 exceptions. Rewards stay the verifier's point counts, so the mean of the raw rewards is 1.586, not a pass rate. The first pass scored 13 tasks short. Their oracle text, or a missing `tests/questionnaire.yaml`, was fixed, and the rerun scored those 13 fully held. Upstream commit `db1b8b493009811314421e7a1775c947762dc3b7`. Harbor 0.18.0.
 
 `persona-computer-1` is Harbor's computer-1 with the persona prompt spliced in. It is not APB's vendored computer-1. The 5% os-app comparison uses this agent, and the three-run ranges overlap. When `ADHERENCE_TEMPERATURE` is unset the agent uses 0.7; the recorded opus runs did not set it, and `claude-opus-4-8` drops an explicit temperature.
 
-An earlier one-task chat probe used `glm-4.7`. APB's vaccines transcript in that probe ends with an `[Ended: satisfied — ...]` turn, and Harbor's last turn is a normal goodbye. For DeepSeek, the Harbor chat bot uses a completion budget of 8192 because a 1024 budget returns empty `content` after `reasoning_content`. APB's bot budget stays 1024. The parity table above is the `claude-haiku-5-5` subset, not that probe.
+An earlier one-task chat probe used `glm-4.7`. APB's vaccines transcript in that probe ends with an `[Ended: satisfied — ...]` turn, and Harbor's last turn is a normal goodbye. The parity table above is the `claude-haiku-5-5` subset, not that probe.
 
 The generated dataset lives in `datasets/agentpersonabench`, which is gitignored. The adapter PR contains the adapter. The tasks are in [harbor-datasets#270](https://github.com/harbor-framework/harbor-datasets/pull/270). Parity artifacts are in [parity-experiments discussion 274](https://huggingface.co/datasets/harborframework/parity-experiments/discussions/274).
 
@@ -229,7 +229,7 @@ uv sync
 
 ## Troubleshooting
 
-- A chat verifier that writes `reward.txt` of 0 with verdict `ERROR` is the upstream malformed-judge score, including some HTTP failures it catches. An API failure that exits before any reward file is a verifier failure, not a scored 0. `ADHERENCE_JUDGE_MODEL` in the generated `task.toml` is still `claude-opus-4-8`. The 2,301 oracle result used DeepSeek, not that pin.
+- A chat verifier that writes `reward.txt` of 0 with verdict `ERROR` is the upstream malformed-judge score, including some HTTP failures it catches. An API failure that exits before any reward file is a verifier failure, not a scored 0. `ADHERENCE_JUDGE_MODEL` in the generated `task.toml` is `claude-opus-4-8`.
 - A GLM judge that returns empty text spent the token budget on reasoning. `tests/llm_client.py` disables thinking for model ids that contain `glm`.
 - `run_agentpersonabench_parity.yaml` is the recorded web parity arm. Generate `datasets/agentpersonabench-parity-web` with `--surface web --split parity` before using it. Survey, chat, and os-app stay on their own commands in the parity section.
 

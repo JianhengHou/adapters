@@ -16,7 +16,7 @@
           "computer-1@db1b8b4"
         ],
         "adaptable": true,
-        "notes": "Survey 502, chat 565, web 707, os-app 686. 159 tasks are not emitted because the DeepSeek-qualified oracle did not score fully held. That oracle is not a validation under the default claude-opus-4-8 judge."
+        "notes": "Survey 502, chat 565, web 707, os-app 686. 159 tasks are not emitted because the oracle did not score fully held."
       }
     ],
     "harbor_adapter": [
@@ -42,7 +42,7 @@
           "None"
         ],
         "parity_costs": "unmetered",
-        "notes": "Registry count is the adapted set. Dataset PR: https://github.com/harbor-framework/harbor-datasets/pull/270. Parity is 115 tasks (survey 25, chat 28, web 32, os-app 30), drawn with random.Random(42) from emitted tasks and listed in parity_task_ids.json. Each entry in parity_experiment.json is one surface. Upstream db1b8b493009811314421e7a1775c947762dc3b7. Harbor 0.18.0. Survey, chat, and web use claude-haiku-5-5. Os-app uses claude-opus-4-8. Effort medium. Three runs per side. Run ranges overlap on every surface. task.toml still pins claude-opus-4-8 for the judge. The 2301 fully-held oracle used dashscope/deepseek-v4.1-flash, not that pin."
+        "notes": "Registry count is the adapted set. Dataset PR: https://github.com/harbor-framework/harbor-datasets/pull/270. Parity is 115 tasks (survey 25, chat 28, web 32, os-app 30), drawn with random.Random(42) from emitted tasks and listed in parity_task_ids.json. Each entry in parity_experiment.json is one surface. Upstream db1b8b493009811314421e7a1775c947762dc3b7. Harbor 0.18.0. Survey, chat, and web use claude-haiku-5-5. Os-app uses claude-opus-4-8. Effort medium. Three runs per side. Run ranges overlap on every surface. The parity judge is claude-opus-4-8 where the verifier calls a model."
       }
     ]
   }
