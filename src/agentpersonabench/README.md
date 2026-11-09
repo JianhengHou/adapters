@@ -2,7 +2,7 @@
 
 ## Overview
 
-This adapter converts the survey, chat, web, and os-app surfaces of [AgentPersonaBench](https://github.com/MatrAIx-ai/AgentPersonaBench) into Harbor tasks. The upstream benchmark has 2,460 tasks. This adapter emits 2,301. The other 159 are listed in `EXCLUSIONS.md` and `EXCLUSIONS-<surface>.md` when the dataset is generated. A task is emitted only when its own verifier can score an oracle artifact as fully held. Most chat oracles restate the verifier's HELD clauses as `user_turns.json`. Sixty chat oracles instead use calibrated concrete turns because a rubric restatement was insufficient or unstable. The judge prompt is unchanged.
+This adapter converts the survey, chat, web, and os-app surfaces of [AgentPersonaBench](https://github.com/MatrAIx-ai/AgentPersonaBench) into Harbor tasks. The upstream benchmark has 2,460 tasks. This adapter emits 2,301. The other 159 are listed in `EXCLUSIONS.md` and `EXCLUSIONS-<surface>.md` when the dataset is generated. A task is emitted only when the DeepSeek-qualified oracle in Notes scores fully held. That run is not a validation under the default `claude-opus-4-8` judge. Most chat oracles restate the verifier's HELD clauses as `user_turns.json`. Sixty chat oracles instead use calibrated concrete turns because a rubric restatement was insufficient or unstable. The judge prompt is unchanged.
 
 - **Source**: https://github.com/MatrAIx-ai/AgentPersonaBench (code Apache-2.0, tasks CC-BY-4.0)
 - **Paper**: https://arxiv.org/abs/2610.04379
@@ -161,7 +161,7 @@ The comparison below is a 115-task subset, not a full-benchmark parity. Task ids
 
 Raw runs, original then Harbor. Survey: (1.36, 1.32, 1.40) and (1.48, 1.40, 1.52). Chat: (0.964, 1.000, 1.071) and (1.036, 1.000, 0.964). Web: (1.281, 1.219, 1.281) and (1.312, 1.250, 1.281). Os-app: (1.033, 1.133, 1.033) and (1.133, 1.000, 1.100).
 
-Claude Code (`persona-claude-code@1.0.0`, `claude-haiku-5-5`) was run on the Harbor side only, one pass: survey mean 1.440 (25 tasks) and web mean 1.281 (32 tasks). There is no upstream side and sample SEM is undefined at one run, so it is not a parity row.
+Claude Code (`persona-claude-code@1.0.0`, `claude-haiku-5-5`) was run on the Harbor side only, one pass: survey mean 1.440 (25 tasks) and web mean 1.281 (32 tasks). There is no upstream side and sample SEM is undefined at one run, so it is not a parity row. The 57 trial directories were a local Harbor job and were not part of the parity-experiments upload. They are no longer on the machine that ran them. The means above are that job's summary.
 
 Reproduction, from the repository root after generating the subset with `--split parity`:
 
@@ -201,13 +201,13 @@ The upstream survey command must run `write_persona_prompt_file` with a Python t
 
 Emitted tasks keep upstream `instruction.md`, `persona.yaml`, `input/`, and `verifier.py` bytes. The verifier change is the `[[checks]]` path, from the benchmark `task.toml` to `tests/checks.toml`. Persona rendering reads that file, so a tested value such as `None` or `Unknown` stays in the prompt. `persona.yaml` is not copied into the image at build time. Survey does not upload it. Web and chat copy it from `tests/` only after the agent has finished. `persona-computer-1` uploads it to `/app/input/persona.yaml` when the agent starts, matching APB's mixin.
 
-`tests/test.sh` deletes `/logs/verifier/reward.txt` before the verifier runs. The verifier then rebuilds `/input` and `/environment` from the pristine copies under `tests/`, which Harbor uploads only at grade time.
+`tests/test.sh` deletes `/logs/verifier/reward.txt` before the verifier runs, then keeps the reward the verifier writes. That includes an explicit malformed-judge score of 0, the upstream `ERROR` verdict. If the verifier exits without writing a reward, the script does not invent 0 and exits non-zero, so Harbor records a verifier failure. The script rebuilds `/input` and `/environment` from the pristine copies under `tests/`, which Harbor uploads only at grade time.
 
 Excluded tasks, 159 of 2,460: survey 0, chat 3, web 63, os-app 93. The current oracle synthesizer has not produced and verified a full-score artifact for the excluded web and os-app tasks; this does not claim that no such artifact can exist. Three chat tasks (`debugger-first-chat`, `instrumentation-first-chat`, `risk-seeking-chat`) raise `OracleError` because the verifier has no HELD clause. Twelve chat verifiers are rule-based. Sixty chat oracles use hand-written calibrated turns (`chat_oracle_calibrated.txt`) because a rubric restatement was insufficient or unstable. The other chat oracles restate the verifier's own HELD sentences; that shows the judge accepts the restatement. `reviewstyle-web` uses the same calibrated review text as `reviewstyle-chat` and a real Playwright trace.
 
 Web pages keep ground truth in `data-*` attributes and HTML comments inside the agent-visible image, as upstream does. `persona-web` does not read those attributes. A shell-capable agent can. Os-app catalogs under `/opt/task-environment/` are in the same position.
 
-The Harbor oracle's latest trial is fully held on all 2,301 emitted tasks, with 0 exceptions. Rewards stay the verifier's point counts, so the mean of the raw rewards is 1.586, not a pass rate. LLM-judge trials in that run used `dashscope/deepseek-v4.1-flash` with thinking disabled, passed through `--verifier-env`. The 60 calibrated turns and the three chat exclusions were gated with `glm-4.7`, thinking disabled. Generated `task.toml` still pins `claude-opus-4-8`. That pin was not used for this oracle, because `ANTHROPIC_API_KEY` returns HTTP 401. The first pass scored 13 tasks short. Their oracle text, or a missing `tests/questionnaire.yaml`, was fixed, and the rerun scored those 13 fully held. Upstream commit `db1b8b493009811314421e7a1775c947762dc3b7`. Harbor 0.18.0.
+The 2,301 fully-held figure is a DeepSeek-qualified oracle result. It is not a validation under the default judge. The latest trial of each emitted task was fully held, with 0 exceptions. Rewards stay the verifier's point counts, so the mean of the raw rewards is 1.586, not a pass rate. LLM-judge trials in that run used `dashscope/deepseek-v4.1-flash` with thinking disabled, passed through `--verifier-env`. The 60 calibrated turns and the three chat exclusions were gated with `glm-4.7`, thinking disabled. Generated `task.toml` still pins `claude-opus-4-8`. That pin was not used for this oracle, because `ANTHROPIC_API_KEY` returns HTTP 401, and the default Opus judge has not qualified these oracles. The first pass scored 13 tasks short. Their oracle text, or a missing `tests/questionnaire.yaml`, was fixed, and the rerun scored those 13 fully held. Upstream commit `db1b8b493009811314421e7a1775c947762dc3b7`. Harbor 0.18.0.
 
 `persona-computer-1` is Harbor's computer-1 with the persona prompt spliced in. It is not APB's vendored computer-1. The 5% os-app comparison uses this agent, and the three-run ranges overlap. When `ADHERENCE_TEMPERATURE` is unset the agent uses 0.7; the recorded opus runs did not set it, and `claude-opus-4-8` drops an explicit temperature.
 
@@ -229,7 +229,7 @@ uv sync
 
 ## Troubleshooting
 
-- Chat reward 0 with `judge HTTP 401` means the Anthropic key was rejected. The verdict is not a content score. `ADHERENCE_JUDGE_MODEL` in the generated `task.toml` is still `claude-opus-4-8`.
+- A chat verifier that writes `reward.txt` of 0 with verdict `ERROR` is the upstream malformed-judge score, including some HTTP failures it catches. An API failure that exits before any reward file is a verifier failure, not a scored 0. `ADHERENCE_JUDGE_MODEL` in the generated `task.toml` is still `claude-opus-4-8`. The 2,301 oracle result used DeepSeek, not that pin.
 - A GLM judge that returns empty text spent the token budget on reasoning. `tests/llm_client.py` disables thinking for model ids that contain `glm`.
 - `run_agentpersonabench_parity.yaml` is the recorded web parity arm. Generate `datasets/agentpersonabench-parity-web` with `--surface web --split parity` before using it. Survey, chat, and os-app stay on their own commands in the parity section.
 
