@@ -161,7 +161,7 @@ The comparison below is a 115-task subset, not a full-benchmark parity. Task ids
 
 Raw runs, original then Harbor. Survey: (1.36, 1.32, 1.40) and (1.48, 1.40, 1.52). Chat: (0.964, 1.000, 1.071) and (1.036, 1.000, 0.964). Web: (1.281, 1.219, 1.281) and (1.312, 1.250, 1.281). Os-app: (1.033, 1.133, 1.033) and (1.133, 1.000, 1.100).
 
-Claude Code (`persona-claude-code@1.0.0`, `claude-haiku-5-5`) was run on the Harbor side only, one pass: survey mean 1.440 (25 tasks) and web mean 1.281 (32 tasks). There is no upstream side and sample SEM is undefined at one run, so it is not a parity row. The 57 trial directories were a local Harbor job and were not part of the parity-experiments upload. They are no longer on the machine that ran them. The means above are that job's summary.
+Claude Code (`persona-claude-code@1.0.0`, `claude-haiku-5-5`) was run on the Harbor side only, one pass: survey mean 1.400 (25 tasks, 4 zeros) and web mean 1.219 (32 tasks, 5 zeros). The 57 trials together mean 1.298. There is no upstream side and sample SEM is undefined at one run, so it is not a parity row. The trial directories are at [HJH2CMD/agentpersonabench-claude-code](https://huggingface.co/datasets/HJH2CMD/agentpersonabench-claude-code). `harborframework/parity-experiments` is already over its file cap, so this rerun could not be added to discussion 274. An earlier local job scored survey 1.440 and web 1.281, and those trial directories were not retained.
 
 Reproduction, from the repository root after generating the subset with `--split parity`:
 
