@@ -207,7 +207,7 @@ Excluded tasks, 159 of 2,460: survey 0, chat 3, web 63, os-app 93. The current o
 
 Web pages keep ground truth in `data-*` attributes and HTML comments inside the agent-visible image, as upstream does. `persona-web` does not read those attributes. A shell-capable agent can. Os-app catalogs under `/opt/task-environment/` are in the same position.
 
-The latest trial of each emitted task was fully held, with 0 exceptions. Rewards stay the verifier's point counts, so the mean of the raw rewards is 1.586, not a pass rate. The first pass scored 13 tasks short. Their oracle text, or a missing `tests/questionnaire.yaml`, was fixed, and the rerun scored those 13 fully held. Upstream commit `db1b8b493009811314421e7a1775c947762dc3b7`. Harbor 0.18.0.
+The latest trial of each emitted task was fully held, with 0 exceptions. That oracle was qualified with `dashscope/deepseek-v4.1-flash`, not the default `claude-opus-4-8` judge pinned in `task.toml`. Rewards stay the verifier's point counts, so the mean of the raw rewards is 1.586, not a pass rate. The first pass scored 13 tasks short. Their oracle text, or a missing `tests/questionnaire.yaml`, was fixed, and the rerun scored those 13 fully held. Upstream commit `db1b8b493009811314421e7a1775c947762dc3b7`. Harbor 0.18.0.
 
 `persona-computer-1` is Harbor's computer-1 with the persona prompt spliced in. It is not APB's vendored computer-1. The 5% os-app comparison uses this agent, and the three-run ranges overlap. When `ADHERENCE_TEMPERATURE` is unset the agent uses 0.7; the recorded opus runs did not set it, and `claude-opus-4-8` drops an explicit temperature.
 
